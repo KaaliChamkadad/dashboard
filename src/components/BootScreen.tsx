@@ -34,6 +34,12 @@ export function BootScreen() {
     if (!visible) return;
     try {
       window.sessionStorage.setItem(SESSION_KEY, '1');
+      const audio = new Audio(`${import.meta.env.BASE_URL}sounds/bat_sound.wav`);
+      audio.volume = 0.5;
+      audio.play().catch(() => {
+        // Autoplay policy might block this on first load without interaction
+        console.warn('Audio autoplay was blocked by the browser.');
+      });
     } catch {
       /* fine */
     }
