@@ -62,6 +62,8 @@ import {
 } from './data/channel';
 import { useChannelStats } from './lib/useChannelStats';
 import { useLatestVideos } from './lib/useLatestVideos';
+import { trackVisit, trackEvent } from './lib/tracking';
+import { AdminPanel } from './components/AdminPanel';
 
 const navigation = [
   { id: 'videos', label: 'Vault' },
@@ -185,6 +187,7 @@ function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
+              trackEvent('subscribe');
               fireConfetti({ count: 160, origin: { x: window.innerWidth * 0.85, y: 70 } });
               play('levelup');
             }}
@@ -221,7 +224,10 @@ function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
                 href={channel.discordUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => unlock('gang')}
+                onClick={() => {
+                  trackEvent('discord');
+                  unlock('gang');
+                }}
               >
                 Join the Discord
               </a>
@@ -243,7 +249,7 @@ function Hero({ chaos, onPlay, liveVideos }: { chaos: number; onPlay: (video: Vi
     <section className="hero" id="home" aria-labelledby="hero-title">
       <div className="hero-media" aria-hidden="true">
         <motion.img
-          src="/images/bat-cave-hero.jpg"
+          src={`${import.meta.env.BASE_URL}images/bat-cave-hero.jpg`}
           alt="KaaliChamkadad Minecraft avatar standing atop mossy stones overlooking valley"
           fetchPriority="high"
           style={{ y: reduceMotion ? 0 : parallax }}
@@ -688,7 +694,7 @@ function Story() {
       <div className="container story-layout">
         <Reveal className="story-visual">
           <img
-            src="/images/inside-the-cave.jpg"
+            src={`${import.meta.env.BASE_URL}images/inside-the-cave.jpg`}
             alt="KaaliChamkadad Minecraft avatar resting beside a lantern inside a deep stone cave"
             loading="lazy"
             width={1200}
@@ -751,11 +757,20 @@ function Community() {
             href={channel.discordUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => unlock('gang')}
+            onClick={() => {
+              trackEvent('discord');
+              unlock('gang');
+            }}
           >
             <DiscordMark /> Official Discord Server <ArrowUpRight size={18} />
           </a>
-          <a className="text-link instagram-link" href={channel.instagramUrl} target="_blank" rel="noopener noreferrer">
+          <a
+            className="text-link instagram-link"
+            href={channel.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent('instagram')}
+          >
             Follow on Instagram <ArrowUpRight size={16} />
           </a>
         </Reveal>
@@ -1043,6 +1058,7 @@ function Site() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [queueOpen, setQueueOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const { chaos, setChaos, biome, setBiome } = useChaos();
   const [muted, setMuted] = useMuted();
   const { queue, ids, toggle, remove, clear } = useQueue();
@@ -1053,6 +1069,11 @@ function Site() {
   useEffect(() => {
     if (ids.length >= 3) unlock('collector');
   }, [ids.length, unlock]);
+
+  // Track page visit on mount
+  useEffect(() => {
+    trackVisit();
+  }, []);
 
   const triggerSecret = useCallback(() => {
     unlock('secret');
@@ -1105,6 +1126,7 @@ function Site() {
       if (key === 'p') setSelectedVideo(liveVideos[Math.floor(Math.random() * liveVideos.length)]);
       if (key === 'c') setChaos(chaos >= 100 ? 0 : Math.min(100, chaos + 25));
       if (key === 't') setTerminalOpen(true);
+      if (key === 'a' && event.shiftKey) setAdminOpen(true);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1187,6 +1209,9 @@ function Site() {
           onChange={setSelectedVideo}
         />
       )}
+      <AnimatePresence>
+        {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} />}
+      </AnimatePresence>
     </>
   );
 }
