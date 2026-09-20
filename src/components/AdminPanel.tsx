@@ -20,9 +20,17 @@ export function AdminPanel({ onClose }: { onClose: () => void }) {
     instagram: 0
   });
   
-  // Prevent body scroll when open
+  // Prevent body scroll when open and play sound
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+    
+    // Play bat sound
+    try {
+      const audio = new Audio(`${import.meta.env.BASE_URL}sounds/bat_sound.wav`);
+      audio.volume = 0.6;
+      audio.play().catch(e => console.warn('Audio play blocked:', e));
+    } catch(e) {}
+
     return () => {
       document.body.style.overflow = '';
     };
