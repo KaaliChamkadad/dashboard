@@ -53,16 +53,15 @@ import { play, useMuted } from './lib/sound';
 import {
   categories,
   channel,
-  filterVideos,
   formatDate,
   formatIndian,
   stats,
   tickerPhrases,
-  videos,
   type Category,
   type Video,
 } from './data/channel';
 import { useChannelStats } from './lib/useChannelStats';
+import { useLatestVideos } from './lib/useLatestVideos';
 
 const navigation = [
   { id: 'videos', label: 'Vault' },
@@ -234,7 +233,7 @@ function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
   );
 }
 
-function Hero({ chaos, onPlay }: { chaos: number; onPlay: (video: Video) => void }) {
+function Hero({ chaos, onPlay, liveVideos }: { chaos: number; onPlay: (video: Video) => void; liveVideos: Video[] }) {
   const channelStats = useChannelStats();
   const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
@@ -294,7 +293,7 @@ function Hero({ chaos, onPlay }: { chaos: number; onPlay: (video: Video) => void
             Home of the Bat Gang. Watch the archives, test your lore, or set a flight record.
           </p>
           <div className="hero-actions">
-            <button className="button button-lime hero-play" onClick={() => onPlay(videos[0])}>
+            <button className="button button-lime hero-play" onClick={() => onPlay(liveVideos[0])}>
               <Play size={16} fill="currentColor" strokeWidth={0} /> Watch Latest Upload
             </button>
             <a className="button button-outline" href="#game">
@@ -304,7 +303,7 @@ function Hero({ chaos, onPlay }: { chaos: number; onPlay: (video: Video) => void
               className="hero-ghost-link"
               onClick={() => {
                 play('pop');
-                onPlay(videos[Math.floor(Math.random() * videos.length)]);
+                onPlay(liveVideos[Math.floor(Math.random() * liveVideos.length)]);
               }}
             >
               <Shuffle size={14} /> Surprise Me
@@ -485,15 +484,27 @@ type VideoLibraryProps = {
   onPlay: (video: Video) => void;
   queueIds: string[];
   onToggleQueue: (id: string) => void;
+  liveVideos: Video[];
 };
 
-function VideoLibrary({ onPlay, queueIds, onToggleQueue }: VideoLibraryProps) {
+function VideoLibrary({ onPlay, queueIds, onToggleQueue, liveVideos }: VideoLibraryProps) {
   const channelStats = useChannelStats();
   const [category, setCategory] = useState<Category>('All videos');
   const [query, setQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(6);
   const { unlock } = useAdvancements();
-  const results = useMemo(() => filterVideos(category, query), [category, query]);
+  const results = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return liveVideos.filter((video) => {
+      const matchesCategory =
+        category === 'All videos' ||
+        (category === 'Shorts' ? video.isShort : video.game === category);
+      const matchesQuery = `${video.title} ${video.game} ${video.description}`
+        .toLowerCase()
+        .includes(search);
+      return matchesCategory && matchesQuery;
+    });
+  }, [category, query, liveVideos]);
   const visibleVideos = results.slice(0, visibleCount);
 
   useEffect(() => {
@@ -762,7 +773,7 @@ const faqs: { question: string; answer: ReactNode }[] = [
   {
     question: 'How active is the channel and upload schedule?',
     answer:
-      'The channel has published 123 videos since launch on September 19, 2025, regularly producing both full-length YouTube productions and fast-paced YouTube Shorts.',
+      'The channel has published 124+ videos since launch on September 19, 2025, regularly producing both full-length YouTube productions and fast-paced YouTube Shorts.',
   },
   {
     question: 'How can I support the channel towards 1,000 subscribers?',
@@ -1037,6 +1048,7 @@ function Site() {
   const { queue, ids, toggle, remove, clear } = useQueue();
   const { unlock } = useAdvancements();
   const konamiIndex = useRef(0);
+  const liveVideos = useLatestVideos();
 
   useEffect(() => {
     if (ids.length >= 3) unlock('collector');
@@ -1090,13 +1102,13 @@ function Site() {
       }
       if (selectedVideo) return;
       const key = event.key.toLowerCase();
-      if (key === 'p') setSelectedVideo(videos[Math.floor(Math.random() * videos.length)]);
+      if (key === 'p') setSelectedVideo(liveVideos[Math.floor(Math.random() * liveVideos.length)]);
       if (key === 'c') setChaos(chaos >= 100 ? 0 : Math.min(100, chaos + 25));
       if (key === 't') setTerminalOpen(true);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [chaos, setChaos, selectedVideo, triggerSecret]);
+  }, [chaos, setChaos, selectedVideo, triggerSecret, liveVideos]);
 
   return (
     <>
@@ -1115,10 +1127,10 @@ function Site() {
         onOpenTerminal={() => setTerminalOpen(true)}
       />
       <main id="main-content">
-        <Hero chaos={chaos} onPlay={setSelectedVideo} />
+        <Hero chaos={chaos} onPlay={setSelectedVideo} liveVideos={liveVideos} />
         <Ticker />
         <StatsStrip />
-        <VideoLibrary onPlay={setSelectedVideo} queueIds={ids} onToggleQueue={toggle} />
+        <VideoLibrary onPlay={setSelectedVideo} queueIds={ids} onToggleQueue={toggle} liveVideos={liveVideos} />
         <FlappyBat chaos={chaos} />
         <RoadTo1K />
         <Story />

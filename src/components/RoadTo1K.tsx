@@ -131,7 +131,7 @@ export function RoadTo1K() {
             <button className="button button-lime" onClick={pledge}>
               Count me in <ArrowUpRight size={16} />
             </button>
-            <span className="road-footnote">Numbers from the channel page, updated by hand. Not live, just honest.</span>
+            <span className="road-footnote">Live numbers from the YouTube API. Refreshes automatically.</span>
           </div>
         </div>
       </div>

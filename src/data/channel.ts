@@ -12,9 +12,9 @@ export const channel = {
 
 /* Public numbers from the channel's About page. Update these by hand when they change. */
 export const channelStats = {
-  subscribers: 512,
-  totalVideos: 123,
-  views: 152804,
+  subscribers: 516,
+  totalVideos: 124,
+  views: 153082,
   country: 'India',
   joined: '2025-09-19',
   verification: 'Phone verified',
@@ -36,6 +36,15 @@ export type Video = {
 
 // Real uploads selected from the channel's public feed, not fabricated video data.
 export const videos: Video[] = [
+  {
+    id: '4vyeixMHnrI',
+    title: 'Minecraft But There Are Custom TNTs',
+    game: 'Minecraft',
+    published: '2026-09-18',
+    isShort: false,
+    description:
+      'Custom TNTs in Minecraft that do things no TNT should ever do. Every explosion is a surprise, and none of them are good surprises.',
+  },
   {
     id: 'QKWgJaO5Qns',
     title: 'I Went to Jail and Started a War in GTA 5',
@@ -223,9 +232,9 @@ export const quotes: { text: string; source: string; videoId: string }[] = [
 
 export const tickerPhrases = [
   'MINECRAFT',
-  '512 SUBSCRIBERS',
+  '516 SUBSCRIBERS',
   'GTA 5',
-  '123 VIDEOS',
+  '124 VIDEOS',
   'BACKROOMS',
   '1.5 LAKH VIEWS',
   'VALORANT',
