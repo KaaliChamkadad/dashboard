@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getDatabase,
   ref,
@@ -19,7 +19,8 @@ const firebaseConfig = {
   projectId: "kaali-dashboard",
   storageBucket: "kaali-dashboard.firebasestorage.app",
   messagingSenderId: "704739339356",
-  appId: "1:704739339356:web:4929907ee4501777504a99"
+  appId: "1:704739339356:web:4929907ee4501777504a99",
+  measurementId: "G-4NCN5ZMS3D"
 };
 
 let db: any = null;
@@ -27,11 +28,12 @@ let isInitialized = false;
 
 try {
   if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     db = getDatabase(app);
     isInitialized = true;
   }
 } catch (e) {
+  console.error("Firebase init error:", e);
   console.warn("Firebase not initialized yet. Add config to tracking.ts.");
 }
 
