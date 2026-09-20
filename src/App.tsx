@@ -108,7 +108,20 @@ type HeaderProps = {
 function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [hidden, setHidden] = useState(false);
+  const { scrollY } = useScroll();
   const { unlock } = useAdvancements();
+
+  useEffect(() => {
+    return scrollY.onChange((latest) => {
+      const previous = scrollY.getPrevious() || 0;
+      if (latest > previous && latest > 150) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+    });
+  }, [scrollY]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -156,7 +169,15 @@ function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
   ));
 
   return (
-    <header className="site-header">
+    <motion.header
+      className="site-header"
+      variants={{
+        visible: { y: 0 },
+        hidden: { y: '-100%' },
+      }}
+      animate={hidden ? 'hidden' : 'visible'}
+      transition={{ duration: 0.35, ease: 'easeInOut' }}
+    >
       <div className="container header-inner">
         <Brand onClick={() => setMenuOpen(false)} />
         <nav className="desktop-nav" aria-label="Main navigation">{navLinks}</nav>
@@ -235,7 +256,7 @@ function Header({ chaos, muted, onToggleMute, onOpenTerminal }: HeaderProps) {
           </motion.nav>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }
 

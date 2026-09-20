@@ -13,13 +13,13 @@ import {
 // WITH YOUR FREE FIREBASE PROJECT CONFIG
 // ==========================================
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAikEBL2pRV4qNw5tolYb9I_Faj83VbiIA",
+  authDomain: "kaali-dashboard.firebaseapp.com",
+  databaseURL: "https://kaali-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kaali-dashboard",
+  storageBucket: "kaali-dashboard.firebasestorage.app",
+  messagingSenderId: "704739339356",
+  appId: "1:704739339356:web:4929907ee4501777504a99"
 };
 
 let db: any = null;
