@@ -44,14 +44,18 @@ export function trackVisit() {
   if (!isInitialized) return;
 
   try {
-    // 1. Log visit event
-    const visitsRef = ref(db, 'stats/visits');
-    push(visitsRef, {
-      timestamp: serverTimestamp(),
-      userAgent: navigator.userAgent,
-    });
+    // 1. Log visit event (only if first time)
+    const hasVisited = localStorage.getItem('kaali_visited');
+    if (!hasVisited) {
+      const visitsRef = ref(db, 'stats/visits');
+      push(visitsRef, {
+        timestamp: serverTimestamp(),
+        userAgent: navigator.userAgent,
+      });
+      localStorage.setItem('kaali_visited', 'true');
+    }
 
-    // 2. Handle Live Presence
+    // 2. Handle Live Presence (always handle this so they show as online)
     const sessionId = Math.random().toString(36).substring(2, 15);
     const presenceRef = ref(db, `presence/${sessionId}`);
     
@@ -75,10 +79,16 @@ export function trackEvent(eventName: string) {
   if (!isInitialized) return;
   
   try {
+    // Prevent spam clicking from the same browser
+    const storageKey = `kaali_clicked_${eventName}`;
+    if (localStorage.getItem(storageKey)) return;
+
     const eventsRef = ref(db, `stats/events/${eventName}`);
     push(eventsRef, {
       timestamp: serverTimestamp(),
     });
+    
+    localStorage.setItem(storageKey, 'true');
   } catch (e) {
     console.error("Event tracking error:", e);
   }
